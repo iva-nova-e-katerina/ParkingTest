@@ -1,9 +1,11 @@
 package iceja.moscow;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.GET;
@@ -12,6 +14,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+
+
+@Entity(name = "parking")
+@Table(name = "parkings")
 @Path("/parkingtest")
 public class ParkingServer {
 	
@@ -46,7 +52,7 @@ public class ParkingServer {
 	@Path("/utilize")
 	@Produces(MediaType.TEXT_PLAIN)  
 	public synchronized String spaceUtilized(@Context HttpServletRequest req) {		
-		if(getUsed(req.getSession(true)) == capacity) {
+		if(getUsed(req.getSession(true)) >= capacity) {
 			return "overload";
 		}
 		this.used++;
@@ -60,7 +66,8 @@ public class ParkingServer {
 	@Produces(MediaType.TEXT_PLAIN)  
 	public synchronized String spaceReleased(@Context HttpServletRequest req)  throws Exception{
 		if(getUsed(req.getSession(true)) <= 0) {
-			throw new Exception ("SYSTEM ERROR! ERROR! system halted. Used " + getUsed(req.getSession(true)));
+			return String.valueOf(this.used);
+			//throw new Exception ("SYSTEM ERROR! ERROR! system halted. Used " + getUsed(req.getSession(true)));
 		} 
 		this.used--;
 		req.getSession(true).setAttribute("parkingserver.used", this.used);
