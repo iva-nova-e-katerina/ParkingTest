@@ -1,29 +1,20 @@
-/*
- Copyright (c) 2019 Ekaterina Alexeevna Ivanova. All rights reserved.
- PROPRIETARY. For demo purposes only, not for redistribution or any commercial 
- use.
- */
-
 package iceja.moscow;
 
-/**
- * @author Ekaterina Ivanova (iceja.moscow)
- *
- */
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.servlet.http.HttpSession;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 
-@Entity
 @Path("/parkingtest")
 public class ParkingServer {
 	
+	
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -41,8 +32,14 @@ public class ParkingServer {
 		
 	}
 	
-	@Path("/utilize") 
-	@GET  
+	// default constructor
+	public ParkingServer() {
+		this(38, 4, false, false);
+	}
+	
+ 
+	@GET
+	@Path("/utilize")
 	@Produces(MediaType.TEXT_PLAIN)  
 	public synchronized String spaceUtilized() {
 		if(getUsed() == capacity) {
@@ -52,21 +49,23 @@ public class ParkingServer {
 		return String.valueOf(getUsed());
 	}
 	
+	
+	@GET
 	@Path("/release")
-	@GET  
 	@Produces(MediaType.TEXT_PLAIN)  
 	public synchronized String spaceReleased()  throws Exception{
 		if(getUsed() <= 0) {
-			throw new Exception ("SYSTEM ERROR! ERROR! system halted");
-		}
+			throw new Exception ("SYSTEM ERROR! ERROR! system halted. Used " + getUsed());
+		} 
 		this.used--;
 		return String.valueOf(getUsed());
 	}
 
-	@Path("/open")
-	@GET  
+
+	@GET
+	@Path("/openfirst")
 	@Produces(MediaType.TEXT_PLAIN)  
-	public  synchronized String askForOpenGate() throws Exception {
+	public  synchronized String askForOpenFirstGate() throws Exception {
 		if(getUsed() < capacity) {
 			return "allow";
 		}else if(getUsed() < 0){
@@ -76,8 +75,23 @@ public class ParkingServer {
 		}
 	}
 	
+
+	@GET
+	@Path("/opensecond")
+	@Produces(MediaType.TEXT_PLAIN)  
+	public  synchronized String askForOpenSecondGate() throws Exception {
+		if(getUsed() < capacity) {
+			return "allow";
+		}else if(getUsed() < 0){
+			throw new Exception ("SYSTEM ERROR! ERROR! system halted");
+		} else {
+			return "reject";
+		}
+	}
+	
+	
+	@GET
 	@Path("/freespace")
-	@GET  
 	@Produces(MediaType.TEXT_PLAIN)  
 	public  synchronized  String getFreePlaces() throws Exception{
 		if(getUsed() <= capacity) {
@@ -151,5 +165,10 @@ public class ParkingServer {
 		this.capacity = capacity;
 	}
 	
-
+    @GET
+    @Path("/message2")
+    public String getMsg()
+    {
+         return "Hello World !! - Jersey 2";
+    }
 }
