@@ -4,10 +4,12 @@ import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 @Path("/parkingtest")
@@ -37,82 +39,89 @@ public class ParkingServer {
 		this(38, 4, false, false);
 	}
 	
+	
+	
  
 	@GET
 	@Path("/utilize")
 	@Produces(MediaType.TEXT_PLAIN)  
-	public synchronized String spaceUtilized() {
-		if(getUsed() == capacity) {
+	public synchronized String spaceUtilized(@Context HttpServletRequest req) {		
+		if(getUsed(req.getSession(true)) == capacity) {
 			return "overload";
 		}
 		this.used++;
-		return String.valueOf(getUsed());
+		req.getSession(true).setAttribute("parkingserver.used", this.used);
+		return String.valueOf(this.used);
 	}
 	
 	
 	@GET
 	@Path("/release")
 	@Produces(MediaType.TEXT_PLAIN)  
-	public synchronized String spaceReleased()  throws Exception{
-		if(getUsed() <= 0) {
-			throw new Exception ("SYSTEM ERROR! ERROR! system halted. Used " + getUsed());
+	public synchronized String spaceReleased(@Context HttpServletRequest req)  throws Exception{
+		if(getUsed(req.getSession(true)) <= 0) {
+			throw new Exception ("SYSTEM ERROR! ERROR! system halted. Used " + getUsed(req.getSession(true)));
 		} 
 		this.used--;
-		return String.valueOf(getUsed());
+		req.getSession(true).setAttribute("parkingserver.used", this.used);
+		return String.valueOf(this.used);
 	}
-
-
+//
+//
 	@GET
 	@Path("/openfirst")
 	@Produces(MediaType.TEXT_PLAIN)  
-	public  synchronized String askForOpenFirstGate() throws Exception {
-		if(getUsed() < capacity) {
+	public  synchronized String askForOpenFirstGate(@Context HttpServletRequest req) throws Exception {
+		if(getUsed(req.getSession(true)) < capacity) {
 			return "allow";
-		}else if(getUsed() < 0){
+		}else if(getUsed(req.getSession(true)) < 0){
 			throw new Exception ("SYSTEM ERROR! ERROR! system halted");
 		} else {
 			return "reject";
 		}
 	}
-	
-
+//	
+//
 	@GET
 	@Path("/opensecond")
 	@Produces(MediaType.TEXT_PLAIN)  
-	public  synchronized String askForOpenSecondGate() throws Exception {
-		if(getUsed() < capacity) {
+	public  synchronized String askForOpenSecondGate(@Context HttpServletRequest req) throws Exception {
+		if(getUsed(req.getSession(true)) < capacity) {
 			return "allow";
-		}else if(getUsed() < 0){
+		}else if(getUsed(req.getSession(true)) < 0){
 			throw new Exception ("SYSTEM ERROR! ERROR! system halted");
 		} else {
 			return "reject";
 		}
 	}
-	
 	
 	@GET
 	@Path("/freespace")
 	@Produces(MediaType.TEXT_PLAIN)  
-	public  synchronized  String getFreePlaces() throws Exception{
-		if(getUsed() <= capacity) {
+	public  synchronized  String getFreePlaces(@Context HttpServletRequest req) throws Exception{
+		if(getUsed(req.getSession(true)) <= capacity) {
 			return String.valueOf(capacity - used);
-		}else if(getUsed() < 0){
+		}else if(getUsed(req.getSession(true)) < 0){
 			throw new Exception ("SYSTEM ERROR! ERROR! system halted");
 		} else {
 			throw new Exception ("SYSTEM ERROR! ERROR! system halted");
 		}
 	}
 
-	
-
 	/**
 	 * @return the used
 	 */
-	@Column(name = "used_space")
-	public int getUsed() {
-		return used;
+
+	public int getUsed(HttpSession session) {
+		Integer u = (Integer)session.getAttribute("parkingserver.used");
+		this.used = (u == null ? 0 : u);
+		return this.used;
 	}
 
+	@Column(name = "used_space")	
+	public int getUsed() {
+		return this.used;
+	}
 	/**
 	 * @param used the used to set
 	 */
@@ -165,10 +174,5 @@ public class ParkingServer {
 		this.capacity = capacity;
 	}
 	
-    @GET
-    @Path("/message2")
-    public String getMsg()
-    {
-         return "Hello World !! - Jersey 2";
-    }
+    
 }
