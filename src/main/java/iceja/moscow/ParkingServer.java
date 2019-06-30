@@ -6,7 +6,10 @@
 
 package iceja.moscow;
 
-
+/**
+ * @author Ekaterina Ivanova (iceja.moscow)
+ *
+ */
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -75,7 +78,7 @@ public class ParkingServer {
 	@Produces(MediaType.TEXT_PLAIN)  
 	public  synchronized  String getFreePlaces() throws Exception{
 		if(getUsed() <= capacity) {
-			return String.valueOf(capacity);
+			return String.valueOf(capacity - used);
 		}else if(getUsed() < 0){
 			throw new Exception ("SYSTEM ERROR! ERROR! system halted");
 		} else {

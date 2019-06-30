@@ -5,10 +5,10 @@
  */
 package iceja.moscow;
 
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import iceja.moscow.ParkingServer;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Ekaterina Ivanova (iceja.moscow)
@@ -16,28 +16,23 @@ import org.junit.Test;
  */
 public class ParkingServerTest {
 
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@Before
-	public void setUp() throws Exception {
-	}
-
-	@Test
-	public void test() {
-		fail("Not yet implemented");
-	}
 	
     @Test
-    public void getFreeParkingUnits() {
+    public void getFreeParkingUnits() throws Exception {
     	
-    	ParkingTest server = new ParkingTest(40, 4, false, false);
-//        MyClass tester = new MyClass(); // MyClass is tested
+    	ParkingServer server = new ParkingServer(40, 4, false, false);
 
-//        // assert statements
-//        assertEquals(0, tester.multiply(10, 0), "10 x 0 must be 0");
-//        assertEquals(0, tester.multiply(0, 10), "0 x 10 must be 0");
-//        assertEquals(0, tester.multiply(0, 0), "0 x 0 must be 0");
+    	assertEquals("36",server.getFreePlaces() );
+    	server.spaceUtilized();
+    	server.spaceUtilized();
+    	assertEquals("34",server.getFreePlaces() );
+    	server.spaceReleased();
+    	assertEquals("35",server.getFreePlaces() );
+    	for(int i=5;i< 40;i++) {
+    		server.spaceUtilized();
+    	}
+    	assertEquals("0",server.getFreePlaces() );
+    	assertEquals("overload",server.spaceUtilized());
     }
 
 }
