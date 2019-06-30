@@ -41,7 +41,7 @@ public class ParkingServer {
 		
 	}
 	
-	
+	@Path("/utilize") 
 	@GET  
 	@Produces(MediaType.TEXT_PLAIN)  
 	public synchronized String spaceUtilized() {
@@ -52,6 +52,7 @@ public class ParkingServer {
 		return String.valueOf(getUsed());
 	}
 	
+	@Path("/release")
 	@GET  
 	@Produces(MediaType.TEXT_PLAIN)  
 	public synchronized String spaceReleased()  throws Exception{
@@ -62,6 +63,7 @@ public class ParkingServer {
 		return String.valueOf(getUsed());
 	}
 
+	@Path("/open")
 	@GET  
 	@Produces(MediaType.TEXT_PLAIN)  
 	public  synchronized String askForOpenGate() throws Exception {
@@ -74,6 +76,7 @@ public class ParkingServer {
 		}
 	}
 	
+	@Path("/freespace")
 	@GET  
 	@Produces(MediaType.TEXT_PLAIN)  
 	public  synchronized  String getFreePlaces() throws Exception{
